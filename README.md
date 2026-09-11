@@ -1,109 +1,366 @@
 # SydneyHappenings
 
-A community and cultural events platform for Sydney, built for ICT726 Web Development,
-Assignment 4. Independent organisers publish events, residents browse and register for
-a place, and administrators manage the platform.
+SydneyHappenings is a community and cultural events platform for Sydney, developed for
+ICT726 Web Development Assignment 4.
+
+The website allows residents to discover and register for events, while organisers can
+publish and manage their own events. Administrators are provided with additional tools
+to manage users, events and other platform data.
 
 ## Stack
 
-- PHP 8.x, procedural with light OOP, no frameworks
-- MySQL / MariaDB via XAMPP, accessed through PDO with prepared statements
-- Hand-written HTML5, CSS3, and vanilla JavaScript - no external front-end libraries
-- Runs at `http://localhost/eventManagement/`
+- PHP 8.x
+- MySQL / MariaDB via XAMPP
+- PDO with prepared statements
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Git and GitHub
+- No external PHP or front-end frameworks
+
+The application runs locally at:
+
+```text
+http://localhost/eventManagement/
+```
 
 ## Setup
 
-1. Copy the project into your XAMPP `htdocs` folder (this repository already assumes
-   the folder name `eventManagement` - see `BASE_URL` in `config.php` if you rename it).
+1. Copy the project into the XAMPP `htdocs` folder.
+
+   Example on macOS:
+
+   ```text
+   /Applications/XAMPP/xamppfiles/htdocs/eventManagement/
+   ```
+
 2. Start Apache and MySQL from the XAMPP control panel.
-3. Create a database named `eventhub` (via phpMyAdmin, or `CREATE DATABASE eventhub;`
-   in the MySQL command line).
-4. Import `schema.sql` into that database to create the six tables.
-5. Import `seed.sql` to load sample categories, venues, users and events.
-6. Confirm `config.php` matches your MySQL credentials. The defaults
-   (`root` user, no password) match a standard XAMPP install, so no changes should be
-   needed. If you ever need to move the credentials elsewhere, copy `config.example.php`
-   to `config.php` and fill in the real values there - `config.php` is the one file that
-   should never be shared or committed, since it holds real credentials.
-7. Visit `http://localhost/eventManagement/` in your browser.
 
-## Test credentials
+3. Create a database named:
 
-Every seeded account uses the same password so they are easy to test with:
+   ```text
+   eventhub
+   ```
 
-| Role      | Email                              | Password      |
-|-----------|-------------------------------------|---------------|
-| Admin     | admin@sydneyhappenings.example      | Password123   |
-| Organiser | marcus.webb@example.com             | Password123   |
-| Organiser | priya.natarajan@example.com         | Password123   |
-| Attendee  | jack.thompson@example.com           | Password123   |
-| Attendee  | sofia.rossi@example.com             | Password123   |
-| Attendee  | ben.nguyen@example.com              | Password123   |
+4. Import `schema.sql` into the `eventhub` database.
 
-New accounts created through `register.php` are always attendees. To make someone an
-organiser, log in as the admin and change their role on `/admin/user-edit.php`.
+5. Import `seed.sql` to load sample users, categories, venues, events,
+   registrations and reviews.
 
-## Folder structure
+6. Confirm the database settings in `config.php`.
 
+   The default local XAMPP configuration is:
+
+   ```text
+   Host: localhost
+   Database: eventhub
+   Username: root
+   Password: empty
+   ```
+
+7. If the project folder name is changed, update `BASE_URL` in `config.php`.
+
+8. Visit:
+
+   ```text
+   http://localhost/eventManagement/
+   ```
+
+## Test Credentials
+
+The seeded accounts use the following test password:
+
+```text
+Password123
 ```
+
+| Role      | Email                              | Password    |
+|-----------|------------------------------------|-------------|
+| Admin     | admin@sydneyhappenings.example     | Password123 |
+| Organiser | marcus.webb@example.com            | Password123 |
+| Organiser | priya.natarajan@example.com        | Password123 |
+| Attendee  | jack.thompson@example.com          | Password123 |
+| Attendee  | sofia.rossi@example.com            | Password123 |
+| Attendee  | ben.nguyen@example.com             | Password123 |
+
+New accounts created through `register.php` are created as attendees.
+
+An administrator can change a user's role through the admin user management interface.
+
+## Folder Structure
+
+```text
 /eventManagement
   /assets
-    /css/style.css        hand-written, mobile-first stylesheet
-    /js/main.js            nav toggle and delete-confirmation script
-    /uploads                organiser-uploaded event images, renamed on upload
+    /css/style.css
+    /js/main.js
+    /uploads
+
   /includes
-    db.php                 shared PDO connection
-    auth_guard.php         session handling, login/role/ownership guards, flash messages
-    validate.php           server-side validation rules, CSRF helpers, e() escaping
-    functions.php          slugs, formatting, database lookups, image upload handling
-    header.php / footer.php  shared page chrome, nav, SEO tags
-  /account                 profile, registrations, password change (any logged-in user)
-  /organiser               event CRUD and attendee management (organiser/admin)
-  /admin                   users, events, categories, venues, enquiries (admin only)
-  index.php, events.php, event.php   public browsing and event detail
-  login.php, register.php, logout.php
-  register-for-event.php, cancel-registration.php
-  contact.php, about.php, privacy.php, 404.php
-  sitemap.php, robots.txt
-  schema.sql, seed.sql
-  config.php, config.example.php
+    db.php
+    auth_guard.php
+    validate.php
+    functions.php
+    header.php
+    footer.php
+
+  /account
+    profile.php
+    my-registrations.php
+    change-password.php
+
+  /organiser
+    dashboard.php
+    my-events.php
+    event-form.php
+    event-attendees.php
+    event-delete.php
+
+  /admin
+    dashboard.php
+    users.php
+    user-edit.php
+    events.php
+    categories.php
+    venues.php
+    enquiries.php
+
+  index.php
+  events.php
+  event.php
+  login.php
+  register.php
+  logout.php
+  register-for-event.php
+  cancel-registration.php
+  review-form.php
+  review-delete.php
+  contact.php
+  about.php
+  privacy.php
+  404.php
+  sitemap.php
+  robots.txt
+  schema.sql
+  seed.sql
+  config.php
 ```
+
+## Database
+
+SydneyHappenings uses eight main database tables:
+
+- `users`
+- `categories`
+- `venues`
+- `events`
+- `registrations`
+- `reviews`
+- `wishlists`
+- `enquiries`
+
+These tables store account information, event details, venues, categories,
+bookings, attendance, reviews, saved events and contact enquiries.
 
 ## Features
 
-- Public browsing: home page, filterable/paginated event listing, event detail pages
-  with live capacity counts.
-- Accounts: registration, login, logout, profile editing, password change.
-- Attendee flow: register and cancel for events, with a six-step server-side check
-  (login, event exists, published, not started, no duplicate, capacity available) and
-  a database unique constraint as a final safety net against duplicate registrations.
-- Organiser flow: create/edit/delete own events, view attendee lists (names and
-  registration dates only), mark attendance as attended or no-show.
-- Admin flow: manage every user (including activating/deactivating accounts, with an
-  admin unable to touch their own account status), manage every event, category and
-  venue CRUD with soft delete for records still in use, and view contact enquiries.
-- Contact form with a honeypot field against spam bots.
-- Accessibility: semantic landmarks, skip link, labelled form fields with
-  `aria-describedby` error text, `role="alert"` summaries and flash messages, visible
-  focus outlines, and `<caption>`/`<th scope>` on data tables.
-- SEO: per-page titles and meta descriptions, canonical links, Open Graph tags and
-  `Event` schema.org JSON-LD on event pages, an XML sitemap, and `robots.txt`.
-- Security: hashed passwords, PDO prepared statements throughout, `htmlspecialchars()`
-  escaping on every echoed value, per-session CSRF tokens on every POST form, a
-  30-minute session inactivity timeout, and validated/renamed file uploads.
+### Public Event Discovery
 
-## Known limitations
+Visitors can:
 
-- No payment processing - all "prices" are informational only, and registering for a
-  paid event does not collect any payment.
-- No email notifications of any kind (confirmation emails, password reset by email,
-  or reminders) - this was intentionally out of scope.
-- No image assets are bundled with the project; event listings without an uploaded
-  image show a plain CSS placeholder instead of a photo.
-- `robots.txt` and the `Disallow` rules within it assume the site is hosted at its own
-  domain root; since crawlers only ever look for `robots.txt` at the true root of a
-  domain, it will not be honoured while the site lives in a subfolder like
-  `/eventManagement/` on a shared host.
-- `BASE_URL` in `config.php` is a plain constant, not auto-detected, so moving the
-  project to a different folder name requires updating it by hand.
-# SydneyHappenings
+- Browse published events
+- Search for events by keyword
+- Filter events by category, suburb, date and price
+- View current and upcoming events
+- View past events
+- View detailed event information
+- See event capacity and remaining availability
+- View event reviews and ratings
+
+### User Accounts
+
+Users can:
+
+- Register for an account
+- Log in and log out
+- Edit their profile
+- Change their password
+- Maintain an authenticated session
+
+### Event Registration
+
+Attendees can:
+
+- Register for published events
+- Select ticket quantity
+- Receive a unique booking reference
+- View current, upcoming and past bookings
+- Cancel an eligible booking before the event starts
+- View ticket and booking information
+
+Registration is checked server-side to confirm that:
+
+1. The user is logged in
+2. The event exists
+3. The event is published
+4. The event has not started
+5. The user does not already have an active booking
+6. Enough capacity remains for the requested tickets
+
+Database constraints provide additional protection against duplicate registrations.
+
+### Wishlist
+
+Logged-in users can save events to their wishlist for later viewing and remove them
+when they are no longer interested.
+
+### Attendance Management
+
+Organisers can view attendees registered for their own events.
+
+After an event starts, organisers can mark registrations as:
+
+- Attended
+- No-show
+
+Attendance information is also used to determine review eligibility.
+
+### Review System
+
+Users who attended an event can submit a review after the event has finished.
+
+The review system supports:
+
+- One review per user per event
+- Star ratings
+- Written comments
+- Editing an existing review
+- Deleting an existing review
+- Average event rating display
+- Review count display
+
+Users who cancelled their booking or were marked as no-show cannot review the event.
+
+### Organiser Features
+
+Organisers can:
+
+- Create events
+- Edit their own events
+- Delete their own events
+- Upload event images
+- Set event capacity and price
+- Publish, draft or cancel events
+- View registrations
+- Manage attendee attendance
+
+Ownership checks prevent organisers from editing events belonging to another organiser.
+
+### Administrator Features
+
+Administrators can:
+
+- View the admin dashboard
+- Manage users
+- Change user roles
+- Activate or deactivate users
+- Manage events
+- Manage categories
+- Manage venues
+- View contact enquiries
+
+## Validation
+
+Forms use both browser-side HTML validation and server-side PHP validation.
+
+Examples include:
+
+- Required fields
+- Email format validation
+- Password requirements
+- Duplicate email prevention
+- Date and time validation
+- Event capacity validation
+- Price validation
+- Ticket quantity validation
+- Category and venue validation
+- Image type and file-size validation
+
+Validation errors are displayed clearly without unnecessarily clearing the user's input.
+
+## Security
+
+Security measures include:
+
+- Password hashing
+- PDO prepared statements
+- Session-based authentication
+- Role-based access control
+- Organiser ownership checks
+- CSRF protection on POST requests
+- Server-side validation
+- Output escaping using `htmlspecialchars()`
+- Secure image type validation
+- Randomised uploaded image filenames
+- Session inactivity handling
+- Database constraints for important relationships
+
+## Accessibility
+
+Accessibility considerations include:
+
+- Semantic HTML5 landmarks
+- Skip-to-content navigation
+- Properly labelled form controls
+- `aria-describedby` for validation messages
+- `role="alert"` for important feedback
+- Keyboard-accessible controls
+- Visible focus states
+- Alternative text for images
+- Logical heading structure
+- Accessible data tables using `<caption>` and `<th scope>`
+- Responsive layouts for different screen sizes
+
+## SEO
+
+SEO features include:
+
+- Unique page titles
+- Meta descriptions
+- Canonical URLs
+- Event URLs using slugs
+- Open Graph metadata
+- Schema.org Event structured data using JSON-LD
+- XML sitemap
+- `robots.txt`
+- Semantic HTML structure
+
+## Event Timing
+
+The website uses the `Australia/Sydney` timezone.
+
+Events remain in the current/upcoming section while they are running and are moved
+to the past event section after their end time.
+
+Registrations cannot be created or cancelled after the event has started.
+
+Reviews become available to eligible attendees after the event has finished.
+
+## Known Limitations
+
+- No payment gateway is integrated. Event prices are informational only.
+- Registering for a paid event does not process a financial transaction.
+- No email notifications are sent for bookings, reminders or password resets.
+- The website is designed primarily as a locally hosted academic project using XAMPP.
+- `BASE_URL` is configured manually and must be changed if the project directory name changes.
+- `robots.txt` works correctly when deployed at the root of a domain, but localhost
+  subfolder hosting may not reflect production crawler behaviour.
+
+## Project Information
+
+**Project:** SydneyHappenings  
+**Unit:** ICT726 Web Development  
+**Assessment:** Assignment 4  
+**Institution:** King's Own Institute  
+**Student:** Binaya Thapa, Rejina Thapa, Marjana Akter Swarnaly
+**Student ID:** 20036267
