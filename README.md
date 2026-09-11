@@ -106,3 +106,4 @@ organiser, log in as the admin and change their role on `/admin/user-edit.php`.
   `/eventManagement/` on a shared host.
 - `BASE_URL` in `config.php` is a plain constant, not auto-detected, so moving the
   project to a different folder name requires updating it by hand.
+# SydneyHappenings
