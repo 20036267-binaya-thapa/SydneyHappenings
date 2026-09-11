@@ -1,0 +1,2650 @@
+/* ============================================================
+   assets/css/style.css
+   Hand-written, mobile-first stylesheet for SydneyHappenings.
+   Layout for small screens comes first; @media rules below widen
+   things at 480px, 768px, and 1024px.
+   ============================================================ */
+
+/* Google-hosted webfonts, with a full system-font fallback stack below
+   so the site still looks fine if the request fails or is blocked. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ---------- Custom properties (the site's design tokens) ---------- */
+:root {
+    /* Colour: deep teal as the brand colour, warm burnt-orange as the
+       accent. Both are checked to give at least 4.5:1 contrast with
+       white text so they are safe to use behind button/badge labels. */
+    --color-primary: #0f766e;
+    --color-primary-dark: #115e59;
+    --color-primary-light: #14b8a6;
+    --color-accent: #c2410c;
+    --color-accent-light: #f97316;
+    --color-text: #1f2937;
+    --color-text-light: #4b5563;
+    --color-bg: #ffffff;
+    --color-bg-alt: #f4f8f7;
+    --color-border: #e2e8f0;
+    --color-error: #b91c1c;
+    --color-error-bg: #fef2f2;
+    --color-success: #166534;
+    --color-success-bg: #f0fdf4;
+    /* Feature C, Step C3: the only new tokens this step is authorized
+       to add, for the "nearly sold out" capacity state (80%+ full).
+       Reuses the exact amber already used inline for the draft-status
+       badge, promoted to a named token - 6.4:1 against --color-warning-bg
+       and 6.85:1 against white, both well past the 4.5:1 minimum. */
+    --color-warning: #854d0e;
+    --color-warning-bg: #fef9c3;
+
+    /* Typography */
+    --font-heading: 'Poppins', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+
+    /* Radius scale */
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    /* Shadow scale */
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.10), 0 2px 4px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.16), 0 4px 10px rgba(15, 23, 42, 0.08);
+
+    --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    --spacing-1: 0.5rem;
+    --spacing-2: 1rem;
+    --spacing-3: 1.5rem;
+    --spacing-4: 2rem;
+    --max-width: 1180px;
+}
+
+/* ---------- Reset and base ---------- */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    color: var(--color-primary);
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-2);
+}
+
+/* Screen-reader-only text: visually hidden, still read by assistive tech. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Visible focus outline for every interactive element - never removed. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--color-accent-light);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ---------- Skip link ---------- */
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--color-accent);
+    color: #fff;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: 0 0 var(--radius-sm) 0;
+    font-weight: 600;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    left: 0;
+}
+
+/* ---------- Header and navigation ----------
+   Three zones in .header-inner: logo (left), .site-nav (centre,
+   public links only), .header-actions (right, everything account-
+   related). See the breakpoints section for how each collapses on
+   mobile - .site-nav becomes the toggle-controlled panel, and the
+   two .user-menu copies (mobile-only avatar / desktop-only avatar
+   plus name) swap visibility so only one is ever reachable at once. */
+.site-header {
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: var(--spacing-1) 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .site-header {
+        transition: box-shadow var(--transition), background-color var(--transition);
+    }
+}
+
+/* Toggled in main.js once the page has scrolled past 20px. */
+.site-header.is-scrolled {
+    box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .site-header.is-scrolled {
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    position: relative;
+}
+
+.site-logo {
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+}
+
+.site-logo:hover {
+    color: var(--color-primary-dark);
+}
+
+.nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.nav-toggle:hover {
+    background: var(--color-bg-alt);
+}
+
+/* ---------- Public nav (centre zone) ---------- */
+.site-nav {
+    display: none;
+    width: 100%;
+}
+
+.site-nav.is-open {
+    display: block;
+}
+
+.site-nav ul {
+    list-style: none;
+    margin: var(--spacing-2) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+/* Mobile-first base: a full-width block link, left-aligned, in the
+   toggle-controlled panel. Active state is a left border. Desktop
+   (768px+, below) turns this into a centred pill with an underline
+   instead - see that block for why the two need different active-
+   state treatments (a left border makes no sense in a row of pills). */
+.site-nav a {
+    display: block;
+    min-height: 2.75rem;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid transparent;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 2.15rem;
+    transition: color var(--transition), background-color var(--transition), border-color var(--transition);
+}
+
+.site-nav a:hover {
+    background: var(--color-bg-alt);
+    color: var(--color-primary);
+}
+
+.site-nav a[aria-current="page"] {
+    color: var(--color-primary);
+    font-weight: 600;
+    border-left-color: var(--color-primary);
+    background: var(--color-bg-alt);
+}
+
+/* Mobile-only duplicate of Log in/Register (see header.php) - a
+   1px top rule separates it from the public links above it. */
+.site-nav-mobile-auth {
+    margin-top: var(--spacing-1);
+    padding-top: var(--spacing-1);
+    border-top: 1px solid var(--color-border);
+}
+
+/* ---------- Account actions (right zone) ----------
+   Hidden below 768px - see header.php for the mobile-only avatar
+   trigger and Log in/Register duplicate inside .site-nav that give
+   this content a reachable home on small screens instead. */
+.header-actions {
+    display: none;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin-left: auto;
+}
+
+.header-actions-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.header-actions-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.header-actions-link[aria-current="page"] {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* ---------- User menu (account dropdown) ----------
+   A native <details>/<summary> pair - opens and closes with zero
+   JavaScript. main.js only adds outside-click/Escape handling and
+   focus return on top of behaviour that already works without it. */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+    border-radius: var(--radius-full);
+    list-style: none;
+    cursor: pointer;
+}
+
+.user-menu-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.user-menu-trigger:hover {
+    background: var(--color-bg-alt);
+}
+
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.user-menu-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.user-menu-chevron {
+    color: var(--color-text-light);
+    font-size: 0.7rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .user-menu-chevron {
+        transition: transform var(--transition);
+    }
+
+    .user-menu[open] .user-menu-chevron {
+        transform: rotate(180deg);
+    }
+}
+
+.user-menu-panel {
+    position: absolute;
+    top: calc(100% + var(--spacing-1));
+    right: 0;
+    z-index: 50;
+    min-width: 14rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-1);
+    display: flex;
+    flex-direction: column;
+}
+
+.user-menu-header {
+    padding: var(--spacing-1) var(--spacing-1) 0.4rem;
+}
+
+.user-menu-fullname {
+    margin: 0;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.user-menu-role {
+    margin: 0.1rem 0 0;
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+}
+
+.user-menu-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 0.4rem 0;
+}
+
+.user-menu-item {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    text-align: left;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.user-menu-item:hover,
+.user-menu-item:focus-visible {
+    background: var(--color-bg-alt);
+}
+
+.user-menu-item[aria-current="page"] {
+    background: var(--color-bg-alt);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* Only one of these two triggers is ever visible at a given width -
+   see the breakpoints section. */
+.user-menu-desktop-only {
+    display: none;
+}
+
+.logout-form {
+    display: inline;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.92);
+    text-decoration: underline;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+}
+
+.link-button:hover {
+    color: #fff;
+}
+
+/* ---------- Flash messages ---------- */
+.flash {
+    padding: var(--spacing-2) var(--spacing-2);
+    margin: var(--spacing-2) auto;
+    max-width: var(--max-width);
+    border-radius: var(--radius);
+    font-weight: 600;
+    border-left: 4px solid transparent;
+    box-shadow: var(--shadow-sm);
+}
+
+.flash-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border-left-color: var(--color-success);
+}
+
+.flash-error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    border-left-color: var(--color-error);
+}
+
+/* ---------- Error summary and field errors ---------- */
+.error-summary {
+    background: var(--color-error-bg);
+    border: 1px solid #fecaca;
+    border-left: 4px solid var(--color-error);
+    color: var(--color-error);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius);
+    margin-bottom: var(--spacing-3);
+    box-shadow: var(--shadow-sm);
+}
+
+.error-summary h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.field-error {
+    color: var(--color-error);
+    font-size: 0.88rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+/* A decorative glyph ahead of every field error, applied sitewide via
+   CSS alone (no markup change needed in any form), so the message
+   never relies on red text alone to signal a problem. */
+.field-error::before {
+    content: "\26A0\FE0E";
+    margin-right: 0.35em;
+}
+
+/* ---------- Main content ---------- */
+/* <main id="main-content" class="container"> - selector has to be
+   main.container, not just main, because .container's own class
+   selector (specificity 0,1,0) otherwise beats a bare "main" type
+   selector (0,0,1) for the padding shorthand and wins outright, not
+   just on the sides it sets - .container's "padding: 0 var(--spacing-2)"
+   was silently overriding this rule's top/bottom padding to 0 on every
+   single page, which is why there was no visible gap under the header
+   anywhere on the site. The left/right value here duplicates
+   .container's var(--spacing-2) so the horizontal gutter is preserved
+   now that this rule is the one actually winning. */
+main.container {
+    display: block;
+    min-height: 60vh;
+    padding: var(--spacing-3) var(--spacing-2) var(--spacing-4);
+    /* Roughly the sticky header's height, so jumping to #main-content
+       (the skip link's target) does not land it underneath the header. */
+    scroll-margin-top: 4.5rem;
+}
+
+/* margin: 0 0 spacing-2 gives every heading sitewide the same clean
+   baseline instead of each browser's own default heading margin -
+   more specific rules elsewhere (.hero h1, .analytics-section h2,
+   etc.) still override this exactly as before. This is also most of
+   the "double margin" sweep: a heading's old default top margin was
+   what usually meant a section's own margin-bottom and the next
+   heading's margin-top were fighting each other. */
+h1, h2, h3 {
+    margin: 0 0 var(--spacing-2);
+    font-family: var(--font-heading);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #111827;
+}
+
+h1 {
+    font-size: 1.75rem;
+}
+
+h2 {
+    font-size: 1.375rem;
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.25rem;
+    }
+
+    h2 {
+        font-size: 1.625rem;
+    }
+}
+
+main > h1,
+main > section h2,
+main > article h2 {
+    position: relative;
+}
+
+/* Wraps a page's h1 and an optional lead paragraph. Not used on
+   index.php (the .hero already serves this role there) or event.php
+   (its h1 is tightly coupled to the badges/organiser/share-row block
+   directly beneath it, not a generic lead-paragraph pattern). */
+.page-header {
+    margin-bottom: var(--spacing-4);
+}
+
+.page-header h1 {
+    margin-bottom: 0.4rem;
+}
+
+.page-header > p {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--color-text-light);
+    font-size: 1.0625rem;
+}
+
+/* ---------- Forms ---------- */
+
+/* Card shell wrapping a form, so a form is a contained block instead
+   of bare fields loose on the page. Auth forms (register/login) use
+   the narrower modifier; everything else uses the default width. */
+.form-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-3);
+    max-width: 42rem;
+    margin-inline: auto;
+}
+
+.form-card--narrow {
+    max-width: 26rem;
+}
+
+/* Two-column field grid inside a .form-card, so short fields (name,
+   email, dates) sit side by side instead of each taking a full row.
+   .form-field--full spans both columns for fields that need the
+   width (description, message, address). Single column below 768px. */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+}
+
+.form-field--full {
+    grid-column: 1 / -1;
+}
+
+/* Groups related fields under a small labelled heading. A real
+   <fieldset>/<legend> pair, not a div + heading, so the grouping is
+   announced to assistive tech the same way it is shown visually. */
+fieldset.form-section {
+    border: none;
+    padding: 0;
+    margin: var(--spacing-3) 0 0;
+    min-width: 0;
+}
+
+fieldset.form-section:first-of-type {
+    margin-top: 0;
+}
+
+fieldset.form-section legend {
+    display: block;
+    width: 100%;
+    padding: 0 0 0.4rem;
+    margin-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-heading);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Submit/cancel row at the foot of a form. Stacked and full width
+   below 480px with the primary action first in source order; a row,
+   right-justified, from 480px up. A .btn-danger inside (e.g. Delete)
+   is pushed to the far left with margin-right: auto once in a row. */
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.form-actions .btn {
+    width: 100%;
+}
+
+.form-field {
+    margin-bottom: var(--spacing-2);
+}
+
+/* Inside a .form-grid, the grid's own gap already provides the space
+   between fields - each field's margin-bottom would otherwise add on
+   top of that gap, doubling it. .form-field is still used outside a
+   grid too (login.php, change-password.php), where its own
+   margin-bottom above is the only spacing and is unaffected here. */
+.form-grid > .form-field {
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-1);
+    color: var(--color-text);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="search"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    background: var(--color-bg);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #cbd5e1;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+input.has-error,
+select.has-error,
+textarea.has-error {
+    border-color: var(--color-error);
+}
+
+input.has-error:focus,
+select.has-error:focus,
+textarea.has-error:focus {
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.14);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background: var(--color-bg-alt);
+    cursor: not-allowed;
+}
+
+.checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.checkbox-field input {
+    width: auto;
+    margin-top: 0.3rem;
+}
+
+.checkbox-field label {
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+.hint {
+    color: var(--color-text-light);
+    font-size: 0.88rem;
+    margin-top: 0.3rem;
+}
+
+/* Same purpose as .hint, used on the forms restyled with .form-card -
+   .hint is left as-is so pages outside this pass are unaffected. */
+.field-hint {
+    color: var(--color-text-light);
+    font-size: 0.8125rem;
+    margin-top: var(--spacing-1);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-1);
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn:hover {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-sm);
+    color: #fff;
+}
+
+.btn:active {
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    /* Disabled buttons still change colour/opacity, but never lift. */
+    .btn:disabled:hover,
+    .btn[aria-disabled="true"]:hover {
+        transform: none;
+    }
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+    background: var(--color-bg-alt);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--color-error);
+    border-color: var(--color-error);
+}
+
+/* Destructive actions should not look inviting until deliberately
+   hovered - only then does it fill solid red. */
+.btn-danger:hover {
+    background: var(--color-error);
+    color: #fff;
+}
+
+/* The one accent-coloured action per page - the register/book button.
+   Nothing else on a page should use this. */
+.btn-accent {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.btn-accent:hover {
+    background: var(--color-accent-light);
+    color: #fff;
+}
+
+.btn-small {
+    min-height: 2.25rem;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+}
+
+/* Full width - only used on mobile and in the booking panel. */
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+/* ---------- Hero (home page) ---------- */
+.hero {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 55%, var(--color-primary-light) 100%);
+    color: #fff;
+    text-align: center;
+    padding: var(--spacing-4) var(--spacing-2);
+    margin: calc(var(--spacing-3) * -1) calc(var(--spacing-2) * -1) var(--spacing-4);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.hero h1 {
+    color: #fff;
+    font-size: 2.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero p {
+    color: rgba(255, 255, 255, 0.92);
+    max-width: 46ch;
+    margin: 0 auto var(--spacing-3);
+    font-size: 1.05rem;
+}
+
+.hero form {
+    max-width: 32rem;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.hero label {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.9rem;
+}
+
+.hero .btn {
+    background: #fff;
+    color: var(--color-primary-dark);
+    margin-top: 0.5rem;
+}
+
+.hero .btn:hover {
+    background: var(--color-bg-alt);
+    color: var(--color-primary-dark);
+}
+
+/* ---------- Cards (event listings) ---------- */
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-3);
+}
+
+.event-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hover and focus-within (keyboard focus on the title link, which
+   stretches over the whole card - see below) get identical feedback. */
+.event-card:hover,
+.event-card:focus-within {
+    box-shadow: var(--shadow-md);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .event-card {
+        transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .event-card:hover,
+    .event-card:focus-within {
+        transform: translateY(-2px);
+    }
+}
+
+/* Positioned wrapper for the image, so the category badge can overlay
+   its bottom-left corner. */
+.event-card-media {
+    position: relative;
+}
+
+.event-card-image,
+.image-placeholder {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    background: var(--color-bg-alt);
+    color: var(--color-text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid var(--color-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .event-card-image {
+        transition: transform 320ms ease;
+    }
+
+    .event-card:hover .event-card-image,
+    .event-card:focus-within .event-card-image {
+        transform: scale(1.04);
+    }
+}
+
+.event-card-badge {
+    position: absolute;
+    left: var(--spacing-1);
+    bottom: var(--spacing-1);
+    /* Semi-opaque --color-bg (#fff) for legibility over a photo - the
+       same rgba-of-a-token approach already used for shadows/focus
+       rings elsewhere in this file. */
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--color-primary-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.event-card-body {
+    padding: var(--spacing-2);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card h3 {
+    margin: 0.5rem 0 0.4rem 0;
+    font-family: var(--font-heading);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* The title link is the card's one and only focusable target. Its
+   ::after stretches to fill .event-card (the nearest positioned
+   ancestor) so the whole card is clickable without a second <a>
+   wrapping it. The clamp itself lives on the inner span, not the
+   link, because overflow:hidden needed for line-clamp would also
+   clip the link's own ::after if it were on the same element. */
+.event-card h3 a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.event-card h3 a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.event-card h3 a:hover {
+    color: var(--color-primary);
+}
+
+.event-card-title-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-card .event-meta {
+    color: var(--color-text-light);
+    font-size: 0.8125rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Price is pinned to the bottom of the card body even when titles/
+   meta above it vary in height, so footers line up across a row. The
+   rating (when present - cards with no reviews show nothing) sits
+   beside it on the left. */
+.event-card-footer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    margin-top: auto;
+    padding-top: var(--spacing-1);
+}
+
+.event-card-price {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.category-tiles .event-card {
+    text-align: center;
+    background: var(--color-bg-alt);
+}
+
+.category-tiles .event-card-body {
+    align-items: center;
+}
+
+/* ---------- Badges ---------- */
+.badge {
+    display: inline-block;
+    padding: 0.28rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-category {
+    background: rgba(15, 118, 110, 0.12);
+    color: var(--color-primary-dark);
+}
+
+.badge-status-published { background: var(--color-success-bg); color: var(--color-success); }
+.badge-status-draft { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge-status-cancelled { background: var(--color-error-bg); color: var(--color-error); }
+.badge-free { background: var(--color-success-bg); color: var(--color-success); }
+
+/* Reviews: hidden-status badge (admin/reviews.php). The other .badge--*
+   modifiers (confirmed/waitlist/cancelled) are added with the waitlist
+   feature, once --color-warning exists for .badge--waitlist. */
+.badge--hidden { background: var(--color-bg-alt); color: var(--color-text-light); }
+
+/* Capacity bar: colour is a hint only - the numbers/text are the real signal. */
+.capacity-bar {
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
+    height: 0.5rem;
+    overflow: hidden;
+    margin: 0.4rem 0;
+}
+
+.capacity-bar-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 320ms ease;
+}
+
+/* Nearly sold out (80%+ full): amber instead of the default primary
+   fill. Still only a hint - .capacity-bar-text right below it is the
+   text that actually carries "X of Y places left", so colour is never
+   the only way this state is communicated. */
+.capacity-bar-fill.capacity-nearly-full {
+    background: var(--color-warning);
+}
+
+.capacity-bar-fill.capacity-full {
+    background: var(--color-error);
+}
+
+/* ---------- Filter sidebar ---------- */
+.filter-form {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-3);
+    border-radius: var(--radius);
+    margin-bottom: var(--spacing-3);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-form .form-field {
+    margin-bottom: var(--spacing-2);
+}
+
+/* ---------- Compact filter bar (events.php) ----------
+   Collapsed behind a <details>/<summary> "Filters" toggle below
+   768px (no JavaScript required); the toggle is hidden and the bar
+   forced open from 768px up, where it also becomes sticky. */
+.filter-bar-details {
+    margin-bottom: var(--spacing-2);
+}
+
+.filter-bar-summary {
+    list-style: none;
+}
+
+.filter-bar-summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--spacing-1) var(--spacing-2);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-2);
+    margin-top: var(--spacing-1);
+}
+
+.filter-bar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.filter-bar-field label,
+.filter-bar-when legend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0;
+}
+
+.filter-bar-field input,
+.filter-bar-field select {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.filter-bar-search {
+    flex: 1 1 12rem;
+}
+
+.filter-bar-when {
+    border: none;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+.filter-bar-when-inputs {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.filter-bar-when-inputs input {
+    min-width: 0;
+    flex: 1;
+}
+
+.filter-bar-toggle {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    padding-bottom: 0.6rem;
+}
+
+.filter-bar-toggle label {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.filter-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-left: auto;
+    padding-bottom: 0.1rem;
+}
+
+.filter-bar-reset {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+}
+
+.filter-bar-reset:hover {
+    color: var(--color-primary);
+}
+
+/* ---------- Results row (events.php): count left, sort right ---------- */
+.results-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-1) var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+}
+
+.results-count {
+    margin: 0;
+    color: var(--color-text-light);
+    font-size: 0.9375rem;
+}
+
+.sort-form {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sort-form select {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-3) 0;
+}
+
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.pagination a:hover {
+    background: var(--color-bg-alt);
+    border-color: var(--color-primary);
+    color: var(--color-primary-dark);
+}
+
+.pagination a[aria-current="page"],
+.pagination span.current {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+/* ---------- Tables (admin/organiser lists) ----------
+   .data-table-wrapper already fills the role Step 7 calls .table-card -
+   every admin/organiser table already shares this one wrapper, so
+   restyling it in place upgrades every table sitewide with no markup
+   changes needed anywhere. */
+.data-table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* A fade hint on the right edge of a wide table, added by main.js only
+   when a table actually overflows and needs horizontal scrolling (so
+   narrow tables, which stack instead below 768px, never show a
+   pointless hint). Scrolling itself works via overflow-x above
+   regardless of JavaScript - this is a visual affordance only. */
+.data-table-wrapper.is-scrollable::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, transparent, var(--color-bg));
+    pointer-events: none;
+}
+
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.data-table caption {
+    text-align: left;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    padding: var(--spacing-2) var(--spacing-2) var(--spacing-1);
+}
+
+table.data-table th,
+table.data-table td {
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-1) 0.9rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+table.data-table td {
+    font-size: 0.9375rem;
+}
+
+table.data-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-bg-alt);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-light);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+table.data-table tbody tr:hover {
+    background: var(--color-bg-alt);
+}
+
+table.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- Stacked tables on mobile ----------
+   Opt-in via .data-table--stack, only added to tables with 5 or fewer
+   columns (wider tables keep the horizontal-scroll pattern above
+   instead). Mobile-first: stacked is the base state, restored to a
+   normal table at 768px+. Each td needs a data-label attribute in the
+   markup - the label is printed via ::before, not duplicated as text,
+   so it is still exactly the same data a sighted desktop user sees. */
+.data-table--stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.data-table--stack,
+.data-table--stack tbody,
+.data-table--stack tr,
+.data-table--stack td {
+    display: block;
+    width: 100%;
+}
+
+.data-table--stack tr {
+    padding: var(--spacing-1) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.data-table--stack tr:last-child {
+    border-bottom: none;
+}
+
+.data-table--stack td {
+    padding: 0.3rem var(--spacing-2);
+    border-bottom: none;
+    text-align: right;
+}
+
+.data-table--stack td::before {
+    content: attr(data-label);
+    float: left;
+    color: var(--color-text-light);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* ---------- Dashboard summary cards ---------- */
+.metric-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
+    list-style: none;
+    padding: 0;
+}
+
+.metric-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius);
+    padding: var(--spacing-2) var(--spacing-3);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .metric-card {
+        transition: transform var(--transition), box-shadow var(--transition);
+    }
+}
+
+.metric-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.metric-card .metric-number {
+    font-family: var(--font-heading);
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+    background: #0b2b28;
+    border-top: 4px solid var(--color-accent);
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3) 0;
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.site-footer p {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.site-footer nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin: 0.5rem 0;
+}
+
+/* --color-text-light is a dark grey meant for light backgrounds - the
+   footer itself stays dark (unchanged by this step), so using it here
+   verbatim would fail contrast. Kept the existing light/muted-white
+   resting colour instead, sized per spec, with the spec's exact hover
+   treatment (which does have enough contrast against this background). */
+.site-footer nav a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.site-footer nav a:hover,
+.site-footer nav a:focus-visible {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+/* ---------- Utility ---------- */
+.text-center { text-align: center; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-4) var(--spacing-2);
+    color: var(--color-text-light);
+    background: var(--color-bg-alt);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+}
+
+/* ============================================================
+   Breakpoints
+   ============================================================ */
+
+/* 480px: two-up card grid, inline nav toggle hidden isn't needed yet */
+@media (min-width: 480px) {
+    .metric-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bar-row {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-2);
+    }
+
+    .bar-label {
+        width: 5rem;
+        flex-shrink: 0;
+    }
+
+    .bar-bar {
+        flex: 1;
+    }
+
+    .hero {
+        padding: calc(var(--spacing-4) * 1.4) var(--spacing-3);
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero form {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-end;
+    }
+
+    .hero .form-field {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .hero .btn {
+        margin-top: 0;
+        white-space: nowrap;
+    }
+}
+
+/* 768px: full horizontal nav, sidebar + listing layout */
+@media (min-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* The filter bar is always open on desktop - no toggle needed.
+       details:not([open]) hides its non-summary content via the UA
+       stylesheet; !important is what it takes to beat that regardless
+       of whether the "open" attribute is actually present. */
+    .filter-bar-summary {
+        display: none;
+    }
+
+    .filter-bar-details .filter-bar {
+        display: flex !important;
+        position: sticky;
+        top: var(--spacing-1);
+        /* Below .site-header (z-index: 40), so the header still wins
+           if anything overlaps while scrolling. */
+        z-index: 30;
+    }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    /* Only one of the two user-menu triggers/copies of Log in-Register
+       is ever shown at a given width - see header.php for why each
+       pair exists (a single element cannot live in two different
+       header zones depending on viewport). */
+    .user-menu-mobile-only {
+        display: none;
+    }
+
+    .user-menu-desktop-only {
+        display: block;
+    }
+
+    .site-nav-mobile-auth,
+    .site-nav-mobile-auth + li {
+        display: none;
+    }
+
+    .site-nav {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        width: auto;
+    }
+
+    .site-nav ul {
+        flex-direction: row;
+        align-items: center;
+        margin-top: 0;
+    }
+
+    /* Desktop link treatment: a centred pill instead of the mobile
+       panel's full-width block, with an underline replacing the left
+       border as the active-state signal (still paired with the
+       colour/weight change, never alone). */
+    .site-nav a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        line-height: normal;
+        border-radius: var(--radius-full);
+        border-left: none;
+    }
+
+    .site-nav a[aria-current="page"] {
+        background: none;
+    }
+
+    /* Hidden by default via opacity (not display), so it can fade in
+       on hover/focus and, for motion-OK users, also grow from centre -
+       see the combined media query below for that transform. */
+    .site-nav a::after {
+        content: "";
+        position: absolute;
+        left: var(--spacing-1);
+        right: var(--spacing-1);
+        bottom: 0.25rem;
+        height: 2px;
+        border-radius: var(--radius-full);
+        background: var(--color-primary);
+        opacity: 0;
+    }
+
+    .site-nav a:hover::after,
+    .site-nav a:focus-visible::after,
+    .site-nav a[aria-current="page"]::after {
+        opacity: 1;
+    }
+
+    .header-actions {
+        display: flex;
+    }
+
+    /* Restore a normal table layout above the stacked-row breakpoint. */
+    .data-table--stack thead {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+        border: 0;
+    }
+
+    .data-table--stack {
+        display: table;
+    }
+
+    .data-table--stack tbody {
+        display: table-row-group;
+    }
+
+    .data-table--stack tr {
+        display: table-row;
+        padding: 0;
+        border-bottom: none;
+    }
+
+    .data-table--stack td {
+        display: table-cell;
+        padding: var(--spacing-1) 0.9rem;
+        text-align: left;
+    }
+
+    .data-table--stack td::before {
+        content: none;
+    }
+
+    .layout-with-sidebar {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: var(--spacing-3);
+        align-items: start;
+    }
+
+    .layout-with-sidebar .filter-form {
+        position: sticky;
+        top: calc(var(--spacing-3) + 4.5rem);
+    }
+
+    .metric-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-card {
+        padding: var(--spacing-4);
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .form-actions .btn {
+        width: auto;
+    }
+
+    .form-actions .btn-danger {
+        margin-right: auto;
+    }
+}
+
+/* Desktop nav underline: grows from centre on hover/focus, on top of
+   the opacity fade defined in the 768px block above (which is what
+   reduced-motion users get on its own - a fade, not a scale/move). */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .site-nav a::after {
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform var(--transition);
+    }
+
+    .site-nav a:hover::after,
+    .site-nav a:focus-visible::after,
+    .site-nav a[aria-current="page"]::after {
+        transform: scaleX(1);
+    }
+}
+
+/* 1024px: three-up card grid, wider container breathing room */
+@media (min-width: 1024px) {
+    .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .metric-cards {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .hero h1 {
+        font-size: 2.9rem;
+    }
+
+    /* Event detail page: two columns, sidebar sticky. Below this
+       width the sidebar falls back to a normal static block, placed
+       after the description/reviews and before nothing else (it is
+       already the last thing in .event-layout in source order). */
+    .event-layout {
+        grid-template-columns: 1fr 340px;
+        gap: var(--spacing-4);
+    }
+
+    .event-sidebar {
+        position: sticky;
+        top: var(--spacing-2);
+    }
+}
+
+/* ============================================================
+   Reviews (Feature 1): aggregate rating, star rating input,
+   individual review cards, and the review comment character count.
+   Fluid with flex-wrap already, so no extra breakpoint rules needed.
+   ============================================================ */
+
+/* Aggregate rating display, output by renderStars(). The star icons
+   are decorative (aria-hidden in the markup); the real figure is
+   always the adjacent text, so colour/shape is never the only signal. */
+.rating {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.3rem 0;
+}
+
+.rating-icons {
+    color: var(--color-accent);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.rating-text {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+}
+
+/* Five-star radio picker (review-form.php). The radio inputs are the
+   real control - visually hidden but kept in the tab order, with
+   their own focus-visible ring on the label, since a 1px input is not
+   a usable focus target on its own. */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+}
+
+.rating-input .rating-star {
+    position: relative;
+    display: inline-flex;
+}
+
+.rating-input input[type="radio"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.rating-input label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    font-weight: normal;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.rating-input input:focus-visible + label {
+    outline: 3px solid var(--color-accent-light);
+    outline-offset: 2px;
+}
+
+.rating-icon {
+    color: var(--color-border);
+    transition: color var(--transition);
+}
+
+.rating-icon.is-filled {
+    color: var(--color-accent);
+}
+
+.review-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.review-actions .inline-form {
+    margin: 0;
+}
+/* ============================================================
+   Event detail page (event.php): hero image, a two-column layout
+   pairing the description/reviews against a sticky booking sidebar.
+   ============================================================ */
+.event-hero {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-3);
+}
+
+/* The hero keeps the wider 16:9 ratio even though the shared
+   .event-card-image rule is 3:2 for listing cards (Step 3) - this
+   overrides it back for this specific context. */
+.event-hero .event-card-image,
+.event-hero .image-placeholder {
+    border-bottom: none;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.event-detail-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: var(--spacing-1);
+}
+
+.event-organiser-subtitle {
+    color: var(--color-text-light);
+    margin: 0 0 var(--spacing-2);
+    font-size: 0.9375rem;
+}
+
+/* "When", inline in the main reading column (not boxed like the
+   .detail-block panels in the sidebar) - reuses the same label/value
+   typography for visual consistency. */
+.event-when {
+    margin: 0 0 var(--spacing-3);
+}
+
+/* Share row: external links only (Facebook/X share intents, a
+   Maps link elsewhere on this page) - no app functionality touched.
+   The URL is always visible/selectable as plain text; the Copy button
+   is a JS-only convenience on top of that, never the only way to
+   get the link. */
+.share-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin: 0 0 var(--spacing-2);
+}
+
+.share-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.share-link:hover {
+    background: var(--color-bg-alt);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.share-copy-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.share-url-input {
+    min-height: 2.75rem;
+    max-width: 14rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-alt);
+    color: var(--color-text-light);
+    font-size: 0.8125rem;
+}
+
+/* Description collapse. PHP always renders the full text; main.js is
+   what adds .is-collapsed and reveals the toggle button (see the
+   "hidden" attribute in the markup) - so a no-JS visitor always gets
+   the complete description with no truncation and no dead button. */
+.event-description {
+    position: relative;
+}
+
+.event-description.is-collapsed {
+    max-height: 12rem;
+    overflow: hidden;
+}
+
+.event-description.is-collapsed::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3rem;
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+    pointer-events: none;
+}
+
+.description-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0;
+    margin-top: 0.2rem;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.description-toggle:hover {
+    text-decoration: underline;
+}
+
+.event-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3);
+    align-items: start;
+}
+
+.event-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.detail-block {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2);
+}
+
+.detail-block-label {
+    margin: 0 0 0.2rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-light);
+    font-weight: 600;
+}
+
+.detail-block-value {
+    margin: 0 0 var(--spacing-1);
+    color: var(--color-text);
+}
+
+/* Every panel state in event.php's booking .detail-block ends with a
+   <form> (Book now / Cancel) immediately followed by the wishlist
+   <form> - a <p> has its own default top/bottom margin, but a <form>
+   has none at all, so two of them back to back sat flush with zero
+   gap between them. */
+.detail-block form + form {
+    margin-top: var(--spacing-2);
+}
+
+.capacity-bar-text {
+    margin: 0.3rem 0 var(--spacing-2);
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+}
+
+/* Reviews sit in the left column below the description now, still
+   visually set apart as a tinted, rounded band. */
+.event-reviews-section {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
+}
+
+.event-reviews-section h2 {
+    margin-top: 0;
+}
+
+/* One reviewer's review, wherever reviews are listed (event.php). */
+.review-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-2) var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+.review-card:last-child {
+    margin-bottom: 0;
+}
+
+.review-card .review-meta {
+    color: var(--color-text-light);
+    font-size: 0.88rem;
+    margin-bottom: 0.4rem;
+}
+
+/* Live character count under the review comment textarea. */
+.char-counter {
+    color: var(--color-text-light);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+/* ============================================================
+   Organiser/admin analytics (Feature 2). Summary stat cards, a
+   dependency-free bar chart, and the section wrapper used to group
+   each part of organiser/analytics.php.
+   ============================================================ */
+
+/* Stat cards: reuses the existing .metric-card look (bordered,
+   left accent, shadow, hover lift) but with its own label/value/
+   sub-label type scale for a denser, more data-table-like card. */
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-3);
+    list-style: none;
+    padding: 0;
+}
+
+.stat-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius);
+    padding: var(--spacing-2) var(--spacing-3);
+    box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .stat-card {
+        transition: transform var(--transition), box-shadow var(--transition);
+    }
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-light);
+    font-weight: 600;
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: var(--color-text);
+    margin-top: 0.2rem;
+}
+
+.stat-sublabel {
+    font-size: 0.8125rem;
+    color: var(--color-text-light);
+    margin-top: 0.2rem;
+}
+
+/* Bar chart: no image, no charting library. The number is always
+   printed next to the bar - bar length is a visual aid, never the
+   only way the value is conveyed. Mobile-first: the label sits above
+   the bar below 480px, and moves to a fixed-width column beside it
+   from 480px up (see the breakpoints section). */
+.bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    margin-bottom: var(--spacing-3);
+}
+
+.bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.bar-label {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+}
+
+.bar-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.bar-track {
+    flex: 1;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
+    min-height: 1.25rem;
+    overflow: hidden;
+}
+
+.bar-fill {
+    display: block;
+    height: 100%;
+    min-height: 1.25rem;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    transition: width var(--transition);
+}
+
+.bar-value {
+    flex-shrink: 0;
+    min-width: 2.5ch;
+    text-align: right;
+    color: var(--color-text-light);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Section wrapper grouping each part of the analytics page (the
+   trend chart, the per-event table, the category breakdown). */
+.analytics-section {
+    margin-bottom: var(--spacing-4);
+}
+
+.analytics-section h2 {
+    margin-bottom: var(--spacing-2);
+    padding-bottom: var(--spacing-1);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ============================================================
+   Wishlist (Feature B): the heart toggle button (both the compact
+   card version and the labelled version in the booking panel) and
+   the toast that confirms a save/unsave without a full page reload.
+   ============================================================ */
+
+/* The heart glyph is aria-hidden and colour-only never carries the
+   state - a visually hidden span next to it (in the markup) always
+   says "Save event" or "Saved", and aria-pressed drives the colour
+   change below, not the other way round. */
+.wishlist-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.wishlist-heart {
+    font-size: 1.15rem;
+    line-height: 1;
+    color: var(--color-text-light);
+    transition: color var(--transition);
+}
+
+.wishlist-btn:hover {
+    border-color: var(--color-accent);
+}
+
+.wishlist-btn:hover .wishlist-heart {
+    color: var(--color-accent);
+}
+
+.wishlist-btn[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-light);
+}
+
+.wishlist-btn[aria-pressed="true"] .wishlist-heart {
+    color: var(--color-accent);
+}
+
+/* A small "pop" when the state actually changes (toggled by main.js
+   briefly adding this class) - purely decorative, gated behind
+   reduced-motion like every other transform in this file. */
+@media (prefers-reduced-motion: no-preference) {
+    .wishlist-heart {
+        transition: color var(--transition), transform 200ms ease;
+    }
+
+    .wishlist-btn.is-animating .wishlist-heart {
+        transform: scale(1.25);
+    }
+}
+
+/* Compact version overlaid on an .event-card image - see
+   .event-card-media (Step 3) for the badge that already anchors
+   bottom-left; this anchors top-right of the same container. z-index
+   keeps it clickable above the card's stretched-link ::after, which
+   has no explicit z-index of its own. */
+.wishlist-btn--on-card {
+    position: absolute;
+    top: var(--spacing-1);
+    right: var(--spacing-1);
+    z-index: 2;
+    /* Semi-opaque --color-bg (#fff), the same rgba-of-a-token pattern
+       already used for .event-card-badge, for contrast over a photo. */
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Labelled version for the booking .detail-block (event.php, Step
+   B4) - the on-card version's label is visually hidden, but here it
+   is visible text, so the fixed 44px circle is replaced with an
+   auto-width pill sized like the other booking-panel buttons.
+   Usually paired with the existing .btn-block for full width there. */
+.wishlist-btn--labelled {
+    width: auto;
+    height: auto;
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    gap: var(--spacing-1);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.wishlist-btn--labelled[aria-pressed="true"] {
+    color: var(--color-accent);
+}
+
+/* Confirms a save/unsave without a full page reload - a JavaScript-
+   only enhancement (built and shown by main.js). The existing flash
+   message is still what delivers this on a real POST/redirect, so
+   nothing depends on this element existing. */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--spacing-3);
+    z-index: 200;
+    max-width: calc(100vw - var(--spacing-4));
+    padding: var(--spacing-2);
+    background: var(--color-text);
+    color: var(--color-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    font-weight: 600;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .toast {
+        transition: opacity var(--transition);
+    }
+}
+
+.toast.is-visible {
+    opacity: 1;
+}
+
+/* ============================================================
+   Events page timeframe tabs (events.php): switches the listing
+   between "Upcoming" and "Past events" without a separate page.
+   Colour is never the only signal of which tab is active - the
+   active tab also carries aria-current="page" and a heavier font
+   weight, not just the accent underline.
+   ============================================================ */
+.events-tabs {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.events-tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 var(--spacing-1);
+    color: var(--color-text-light);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+}
+
+.events-tab:hover {
+    color: var(--color-text);
+}
+
+.events-tab.is-active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+/* ============================================================
+   Booking (Feature C): the ticket-quantity stepper (event.php) and
+   the printable ticket-stub card (booking-confirmation.php, Step C6's
+   "My tickets"). Both are plain HTML that works with no JavaScript -
+   main.js (Step C8) only makes the stepper's +/- buttons update the
+   number input live, never the only way to set a quantity.
+   ============================================================ */
+
+/* The visible <label> reading "Number of tickets" above this uses the
+   site's existing global `label` style - no extra class needed. */
+.qty-stepper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.qty-stepper-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.qty-stepper-btn:hover {
+    background: var(--color-bg-alt);
+}
+
+/* Disabled at the min/max bound - 0.4 opacity plus aria-disabled
+   (never removed from the tab order, so a screen reader user still
+   lands on it and hears why it does nothing), not colour alone. */
+.qty-stepper-btn:disabled,
+.qty-stepper-btn[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .qty-stepper-btn:disabled:hover,
+    .qty-stepper-btn[aria-disabled="true"]:hover {
+        background: var(--color-bg);
+    }
+}
+
+/* A real <input type="number"> with min/max - the +/- buttons only
+   ever drive this value, they are never the only way to set it; typing
+   a number directly always works too. */
+.qty-stepper-input {
+    width: 4rem;
+    height: 2.75rem;
+    padding: 0 var(--spacing-1);
+    text-align: center;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.qty-stepper-input::-webkit-outer-spin-button,
+.qty-stepper-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* The printable ticket, used on booking-confirmation.php and the
+   compact cards on account/my-registrations.php ("My tickets"). */
+.ticket-stub {
+    position: relative;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.ticket-stub-details {
+    padding: var(--spacing-3);
+}
+
+/* The dashed tear line between the event details and the reference
+   block, with a notch cut into each side edge at that exact height -
+   ::before/::after circles in --color-bg-alt, positioned to sit right
+   on the card's own edge regardless of the divider's inset margin. */
+.ticket-stub-divider {
+    position: relative;
+    margin: 0 var(--spacing-3);
+    border-top: 2px dashed var(--color-border);
+}
+
+.ticket-stub-divider::before,
+.ticket-stub-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-full);
+    transform: translateY(-50%);
+}
+
+.ticket-stub-divider::before {
+    left: calc(-1 * var(--spacing-3) - 0.75rem);
+}
+
+.ticket-stub-divider::after {
+    right: calc(-1 * var(--spacing-3) - 0.75rem);
+}
+
+.ticket-stub-reference {
+    padding: var(--spacing-3);
+    text-align: center;
+}
+
+.ticket-stub-reference-code {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Printed ticket: legible in plain black and white, no shadow, no
+   decorative notches, and nothing that isn't the ticket itself. */
+@media print {
+    .site-header,
+    .site-footer,
+    .btn,
+    .qty-stepper {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .ticket-stub {
+        box-shadow: none;
+        border: 1px solid #000000;
+    }
+
+    .ticket-stub-divider {
+        border-top-color: #000000;
+    }
+
+    .ticket-stub-divider::before,
+    .ticket-stub-divider::after {
+        display: none;
+    }
+
+    .ticket-stub-reference-code {
+        color: #000000;
+    }
+}
+
+/* account/my-registrations.php ("My tickets"), Step C6: the simple
+   past-bookings list, deliberately plain next to the upcoming
+   section's ticket-stub cards. */
+.past-tickets-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.past-tickets-list li {
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.past-tickets-list li:last-child {
+    border-bottom: none;
+}
+
+/* Compact card for the Upcoming grid on the same page - the full
+   .ticket-stub (with its notches and dashed tear line) is designed to
+   be one prominent ticket on its own (booking-confirmation.php), not
+   repeated many times in a list, where it read as an oversized,
+   disconnected block instead of a card. Same visual language as
+   .event-card (border/radius/shadow) so it sits naturally in the same
+   .card-grid other listing pages already use. */
+.ticket-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+.ticket-card h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ticket-card-ref {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.ticket-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    margin-top: auto;
+    padding-top: var(--spacing-1);
+}

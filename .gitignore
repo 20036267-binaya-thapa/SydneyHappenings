@@ -1,0 +1,10 @@
+# Real credentials — config.example.php is the tracked placeholder
+config.php
+
+# User-uploaded event images (keep the folder, ignore its contents)
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store

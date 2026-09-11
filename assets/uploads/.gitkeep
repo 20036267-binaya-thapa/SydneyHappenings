@@ -1,0 +1,3 @@
+This folder stores uploaded event images. Files are renamed to a random
+name on upload (see includes/functions.php, saveEventImage()) - nothing
+here is meant to be viewed directly by name.
