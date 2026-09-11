@@ -362,5 +362,4 @@ Reviews become available to eligible attendees after the event has finished.
 **Unit:** ICT726 Web Development  
 **Assessment:** Assignment 4  
 **Institution:** King's Own Institute  
-**Student:** Binaya Thapa, Rejina Thapa, Marjana Akter Swarnaly
-**Student ID:** 20036267
+**Student:** Binaya Thapa (20036267), Rejina Thapa (20034368), Marjana Akter Swarnaly(20034447)
