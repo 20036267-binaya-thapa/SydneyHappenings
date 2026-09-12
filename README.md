@@ -4,7 +4,7 @@ SydneyHappenings is a community and cultural events platform for Sydney, develop
 ICT726 Web Development Assignment 4.
 
 The website allows residents to discover and register for events, while organisers can
-publish and manage their own events. And Administrators are provided with additional tools
+publish and manage their own events. Administrators are provided with additional tools
 to manage users, events and other platform data.
 
 ## Stack
