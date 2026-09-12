@@ -30,9 +30,7 @@ $stmt = $pdo->prepare(
 $stmt->execute(['ref' => $reference]);
 $booking = $stmt->fetch();
 
-if ($booking === false || (int) $booking['user_id'] !== currentUserId()) {
-    setFlash('error', 'That booking could not be found.');
-    redirect('/account/my-registrations.php');
+
 }
 
 $pageTitle = 'Booking Confirmed - ' . SITE_NAME;
