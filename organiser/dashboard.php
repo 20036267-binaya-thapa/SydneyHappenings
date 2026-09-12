@@ -77,10 +77,10 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<p>
+<div class="button-row">
     <a class="btn" href="<?= BASE_URL ?>/organiser/event-form.php">Create a new event</a>
     <a class="btn btn-secondary" href="<?= BASE_URL ?>/organiser/my-events.php">Manage my events</a>
-</p>
+</div>
 
 <section aria-labelledby="reviews-heading">
     <h2 id="reviews-heading">Reviews</h2>

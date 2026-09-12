@@ -195,22 +195,24 @@ require_once __DIR__ . '/../includes/header.php';
                     <td><?= e($venue['suburb']) ?></td>
                     <td><?= (int) $venue['is_active'] === 1 ? 'Active' : 'Inactive' ?></td>
                     <td>
-                        <a class="btn btn-small" href="<?= BASE_URL ?>/admin/venues.php?edit=<?= (int) $venue['id'] ?>">Edit</a>
-                        <?php if ((int) $venue['is_active'] === 1): ?>
-                            <form method="post" action="<?= BASE_URL ?>/admin/venues.php" class="logout-form" data-confirm="Delete or deactivate '<?= e($venue['name']) ?>'?">
-                                <?= csrfField() ?>
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="venue_id" value="<?= (int) $venue['id'] ?>">
-                                <button type="submit" class="btn btn-small btn-danger">Delete</button>
-                            </form>
-                        <?php else: ?>
-                            <form method="post" action="<?= BASE_URL ?>/admin/venues.php" class="logout-form">
-                                <?= csrfField() ?>
-                                <input type="hidden" name="action" value="activate">
-                                <input type="hidden" name="venue_id" value="<?= (int) $venue['id'] ?>">
-                                <button type="submit" class="btn btn-small btn-secondary">Reactivate</button>
-                            </form>
-                        <?php endif; ?>
+                        <div class="button-row">
+                            <a class="btn btn-small" href="<?= BASE_URL ?>/admin/venues.php?edit=<?= (int) $venue['id'] ?>">Edit</a>
+                            <?php if ((int) $venue['is_active'] === 1): ?>
+                                <form method="post" action="<?= BASE_URL ?>/admin/venues.php" class="logout-form" data-confirm="Delete or deactivate '<?= e($venue['name']) ?>'?">
+                                    <?= csrfField() ?>
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="venue_id" value="<?= (int) $venue['id'] ?>">
+                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                </form>
+                            <?php else: ?>
+                                <form method="post" action="<?= BASE_URL ?>/admin/venues.php" class="logout-form">
+                                    <?= csrfField() ?>
+                                    <input type="hidden" name="action" value="activate">
+                                    <input type="hidden" name="venue_id" value="<?= (int) $venue['id'] ?>">
+                                    <button type="submit" class="btn btn-small btn-secondary">Reactivate</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>

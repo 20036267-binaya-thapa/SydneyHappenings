@@ -184,76 +184,80 @@ require_once __DIR__ . '/../includes/header.php';
 
                             <?php if ($eventStarted): ?>
 
-                                <form
-                                    method="post"
-                                    action="<?= BASE_URL ?>/organiser/event-attendees.php"
-                                    class="logout-form"
-                                >
+                                <div class="button-row">
 
-                                    <?= csrfField() ?>
-
-                                    <input
-                                        type="hidden"
-                                        name="event_id"
-                                        value="<?= $eventId ?>"
+                                    <form
+                                        method="post"
+                                        action="<?= BASE_URL ?>/organiser/event-attendees.php"
+                                        class="logout-form"
                                     >
 
-                                    <input
-                                        type="hidden"
-                                        name="registration_id"
-                                        value="<?= (int) $attendee['id'] ?>"
+                                        <?= csrfField() ?>
+
+                                        <input
+                                            type="hidden"
+                                            name="event_id"
+                                            value="<?= $eventId ?>"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="registration_id"
+                                            value="<?= (int) $attendee['id'] ?>"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="new_status"
+                                            value="attended"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-small"
+                                        >
+                                            Attended
+                                        </button>
+
+                                    </form>
+
+
+                                    <form
+                                        method="post"
+                                        action="<?= BASE_URL ?>/organiser/event-attendees.php"
+                                        class="logout-form"
                                     >
 
-                                    <input
-                                        type="hidden"
-                                        name="new_status"
-                                        value="attended"
-                                    >
+                                        <?= csrfField() ?>
 
-                                    <button
-                                        type="submit"
-                                        class="btn btn-small"
-                                    >
-                                        Attended
-                                    </button>
+                                        <input
+                                            type="hidden"
+                                            name="event_id"
+                                            value="<?= $eventId ?>"
+                                        >
 
-                                </form>
+                                        <input
+                                            type="hidden"
+                                            name="registration_id"
+                                            value="<?= (int) $attendee['id'] ?>"
+                                        >
 
+                                        <input
+                                            type="hidden"
+                                            name="new_status"
+                                            value="no_show"
+                                        >
 
-                                <form
-                                    method="post"
-                                    action="<?= BASE_URL ?>/organiser/event-attendees.php"
-                                    class="logout-form"
-                                >
+                                        <button
+                                            type="submit"
+                                            class="btn btn-small btn-secondary"
+                                        >
+                                            No-show
+                                        </button>
 
-                                    <?= csrfField() ?>
+                                    </form>
 
-                                    <input
-                                        type="hidden"
-                                        name="event_id"
-                                        value="<?= $eventId ?>"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="registration_id"
-                                        value="<?= (int) $attendee['id'] ?>"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="new_status"
-                                        value="no_show"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-small btn-secondary"
-                                    >
-                                        No-show
-                                    </button>
-
-                                </form>
+                                </div>
 
                             <?php else: ?>
 

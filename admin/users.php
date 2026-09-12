@@ -64,16 +64,18 @@ require_once __DIR__ . '/../includes/header.php';
                     <td><?= (int) $user['is_active'] === 1 ? 'Active' : 'Deactivated' ?></td>
                     <td><?= e(formatEventDate($user['created_at'])) ?></td>
                     <td>
-                        <a class="btn btn-small" href="<?= BASE_URL ?>/admin/user-edit.php?id=<?= (int) $user['id'] ?>">Edit</a>
-                        <?php if ((int) $user['id'] !== currentUserId()): ?>
-                            <form method="post" action="<?= BASE_URL ?>/admin/users.php" class="logout-form">
-                                <?= csrfField() ?>
-                                <input type="hidden" name="toggle_user_id" value="<?= (int) $user['id'] ?>">
-                                <button type="submit" class="btn btn-small btn-secondary">
-                                    <?= (int) $user['is_active'] === 1 ? 'Deactivate' : 'Activate' ?>
-                                </button>
-                            </form>
-                        <?php endif; ?>
+                        <div class="button-row">
+                            <a class="btn btn-small" href="<?= BASE_URL ?>/admin/user-edit.php?id=<?= (int) $user['id'] ?>">Edit</a>
+                            <?php if ((int) $user['id'] !== currentUserId()): ?>
+                                <form method="post" action="<?= BASE_URL ?>/admin/users.php" class="logout-form">
+                                    <?= csrfField() ?>
+                                    <input type="hidden" name="toggle_user_id" value="<?= (int) $user['id'] ?>">
+                                    <button type="submit" class="btn btn-small btn-secondary">
+                                        <?= (int) $user['is_active'] === 1 ? 'Deactivate' : 'Activate' ?>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>

@@ -1388,6 +1388,42 @@ table.data-table tbody tr:last-child td {
     border-bottom: none;
 }
 
+/* A row of buttons sitting side by side - table action cells
+   (Edit / Attendees / Delete) and the button pairs under a heading.
+   The buttons are inline-level and taller than the surrounding line
+   box, so left to inline layout they overlap each other and spill past
+   the row's border as soon as they wrap. A flex wrapper gives them a
+   real gap and lets the container grow instead. In a table cell the
+   wrapper goes inside the td, which stays display: table-cell so column
+   widths are unaffected; the inline .logout-form wrappers around the
+   POST-only actions become flex items of the same row. */
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin: var(--spacing-2) 0;
+}
+
+/* Inside a table the actions stay on one line - a wide table already
+   scrolls horizontally in .data-table-wrapper, which reads better than
+   a ragged two-line block of buttons in every row. The small vertical
+   margin goes on the wrapper rather than the td, so only cells that
+   actually hold buttons get the extra height. */
+table.data-table .button-row {
+    flex-wrap: nowrap;
+    margin: 0.2rem 0;
+}
+
+/* Same reasoning for the rating cell: the stars and their label belong
+   on one line here, and the standalone margin would only pad the row
+   out further. */
+table.data-table .rating {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin: 0;
+}
+
 /* ---------- Stacked tables on mobile ----------
    Opt-in via .data-table--stack, only added to tables with 5 or fewer
    columns (wider tables keep the horizontal-scroll pattern above

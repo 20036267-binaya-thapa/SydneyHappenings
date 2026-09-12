@@ -72,14 +72,16 @@ require_once __DIR__ . '/../includes/header.php';
                             ) ?>
                         </td>
                         <td>
-                            <a class="btn btn-small" href="<?= BASE_URL ?>/organiser/event-form.php?id=<?= (int) $event['id'] ?>">Edit</a>
-                            <a class="btn btn-small btn-secondary" href="<?= BASE_URL ?>/organiser/event-attendees.php?id=<?= (int) $event['id'] ?>">Attendees</a>
-                            <form method="post" action="<?= BASE_URL ?>/organiser/event-delete.php" class="logout-form"
-                                  data-confirm="Delete '<?= e($event['title']) ?>'? This cannot be undone.">
-                                <?= csrfField() ?>
-                                <input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>">
-                                <button type="submit" class="btn btn-small btn-danger">Delete</button>
-                            </form>
+                            <div class="button-row">
+                                <a class="btn btn-small" href="<?= BASE_URL ?>/organiser/event-form.php?id=<?= (int) $event['id'] ?>">Edit</a>
+                                <a class="btn btn-small btn-secondary" href="<?= BASE_URL ?>/organiser/event-attendees.php?id=<?= (int) $event['id'] ?>">Attendees</a>
+                                <form method="post" action="<?= BASE_URL ?>/organiser/event-delete.php" class="logout-form"
+                                      data-confirm="Delete '<?= e($event['title']) ?>'? This cannot be undone.">
+                                    <?= csrfField() ?>
+                                    <input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>">
+                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
