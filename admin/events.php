@@ -30,7 +30,11 @@ $whereSql = empty($conditions) ? '1=1' : implode(' AND ', $conditions);
 
 $stmt = $pdo->prepare(
     "SELECT e.*, u.name AS organiser_name,
-            (SELECT COALESCE(SUM(r.quantity), 0) FROM registrations r WHERE r.event_id = e.id AND r.status = 'registered') AS registered_count
+        (SELECT COALESCE(SUM(r.quantity), 0)
+        FROM registrations r
+        WHERE r.event_id = e.id
+        AND r.status IN ('registered', 'attended', 'no_show')
+        ) AS registered_count
      FROM events e
      JOIN users u ON u.id = e.organiser_id
      WHERE {$whereSql}

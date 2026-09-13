@@ -40,6 +40,24 @@ if (isset($_SESSION['user_id'])) {
         setFlash('error', 'You were signed out after 30 minutes of inactivity. Please log in again.');
     }
 }
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare(
+        "SELECT is_active FROM users WHERE id = :id"
+    );
+    $stmt->execute(['id' => $_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    if ($user === false || (int) $user['is_active'] !== 1) {
+        $_SESSION = [];
+        session_destroy();
+        session_start();
+
+        setFlash('error', 'Your account has been deactivated. Please contact an administrator.');
+        redirect('/login.php');
+    }
+}
+
 $_SESSION['last_activity'] = time();
 
 /**

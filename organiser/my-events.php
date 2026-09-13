@@ -14,7 +14,11 @@ requireRole(['organiser', 'admin']);
 // avoids a three-way JOIN/GROUP BY across categories and reviews.
 $stmt = $pdo->prepare(
     "SELECT e.*, c.name AS category_name,
-            (SELECT COALESCE(SUM(r.quantity), 0) FROM registrations r WHERE r.event_id = e.id AND r.status = 'registered') AS registered_count,
+            (SELECT COALESCE(SUM(r.quantity), 0)
+            FROM registrations r
+            WHERE r.event_id = e.id
+            AND r.status IN ('registered', 'attended', 'no_show')
+            ) AS registered_count,
             (SELECT AVG(rv.rating) FROM reviews rv WHERE rv.event_id = e.id AND rv.is_hidden = 0) AS avg_rating,
             (SELECT COUNT(*) FROM reviews rv WHERE rv.event_id = e.id AND rv.is_hidden = 0) AS review_count
      FROM events e

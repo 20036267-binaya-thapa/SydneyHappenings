@@ -359,7 +359,11 @@ require_once __DIR__ . '/includes/header.php';
                 <?= renderStars($eventRating['average'], $eventRating['count']) ?>
 
                 <?php if (empty($displayedReviews)): ?>
-                    <p>No reviews yet. Reviews open after the event.</p>
+                    <?php if ($eventFinished): ?>
+                        <p>No reviews yet.</p>
+                    <?php else: ?>
+                        <p>No reviews yet. Reviews open after the event.</p>
+                    <?php endif; ?>
                 <?php else: ?>
                     <div class="review-list">
                         <?php foreach ($displayedReviews as $review): ?>
